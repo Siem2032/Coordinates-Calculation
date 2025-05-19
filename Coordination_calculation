@@ -1,0 +1,31 @@
+import pandas as pd
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+
+# Load the Excel file
+df = pd.read_excel("locations.xlsx")
+
+# Combine pickup address and postcode into one full address
+df['Pickup Full Address'] = df['Ophaallocaties'] + ', ' + df['Postcode of woonplaats'].astype(str)
+
+# Drop-off location is as-is
+df['Dropoff Full Address'] = df['Afzetlocaties']
+
+# Set up geopy geocoder
+geolocator = Nominatim(user_agent="geo-script")
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+
+# Geocode pickup locations
+df['Pickup Location'] = df['Pickup Full Address'].apply(geocode)
+df['Pickup Lat'] = df['Pickup Location'].apply(lambda loc: loc.latitude if loc else None)
+df['Pickup Lon'] = df['Pickup Location'].apply(lambda loc: loc.longitude if loc else None)
+
+# Geocode drop-off locations
+df['Dropoff Location'] = df['Dropoff Full Address'].apply(geocode)
+df['Dropoff Lat'] = df['Dropoff Location'].apply(lambda loc: loc.latitude if loc else None)
+df['Dropoff Lon'] = df['Dropoff Location'].apply(lambda loc: loc.longitude if loc else None)
+
+# Save output to Excel
+df.to_excel("geocoded_output.xlsx", index=False)
+
+print("Done! File saved as 'geocoded_output.xlsx'")
