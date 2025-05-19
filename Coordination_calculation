@@ -3,7 +3,7 @@ from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
 
 # Load the Excel file
-df = pd.read_excel("locations.xlsx")
+df = pd.read_excel("Coordination points.xlsx")
 
 # Combine pickup address and postcode into one full address
 df['Pickup Full Address'] = df['Ophaallocaties'] + ', ' + df['Postcode of woonplaats'].astype(str)
